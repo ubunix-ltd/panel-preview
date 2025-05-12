@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import type { MediaItem } from './media-item';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -22,6 +22,30 @@ export default function MainPreview({ media }: MainPreviewProps) {
       </main>
     );
   }
+
+  const enableFullscreen = useCallback(() => {
+		const elem = document.documentElement;
+		if (elem.requestFullscreen) {
+			elem.requestFullscreen();
+		} else if (elem.webkitRequestFullscreen) {
+			/* Safari */
+			elem.webkitRequestFullscreen();
+		} else if (elem.msRequestFullscreen) {
+			/* IE11 */
+			elem.msRequestFullscreen();
+		}
+	}, []);
+
+	useEffect(() => {
+		// Attach event listener for user interaction
+		document.addEventListener("click", enableFullscreen, { once: true });
+
+		return () => {
+			// Remove event listener properly on unmount
+			document.removeEventListener("click", enableFullscreen);
+		};
+		// biome-ignore lint/correctness/noInvalidUseBeforeDeclaration: <explanation>
+	}, [enableFullscreen]);
   
   // Determine a generic hint for AI based on type
   const aiHint = media.type === 'image' ? 'selected image' : 'selected video';
